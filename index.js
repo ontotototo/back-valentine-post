@@ -32,8 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Пропускаем заголовки ngrok
 app.use((req, res, next) => {
-  res.setHeader('Bypass-Tunnel-Reminder', 'true');
-  res.setHeader('ngrok-skip-browser-warning', 'true');
+
   next();
 });
 
@@ -113,9 +112,9 @@ app.get('/share/:id', async (req, res) => {
     <meta property="og:title" content="💌 Валентинка для ${card.to_name}" />
     <meta property="og:description" content="${safeMessage}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="${BACKEND_URL}/share/${id}" />
-    <meta property="og:image" content="${BACKEND_URL}/preview/${id}.jpg" />
-    <meta property="vk:image" content="${BACKEND_URL}/preview/${id}.jpg" />
+    <meta property="og:url" content="${VERCEL_URL}/share/${id}" />
+    <meta property="og:image" content="${VERCEL_URL}/preview/${id}.jpg" />
+    <meta property="vk:image" content="${VERCEL_URL}/preview/${id}.jpg" />
 
     <meta name="twitter:card" content="summary_large_image" />
   </head>
