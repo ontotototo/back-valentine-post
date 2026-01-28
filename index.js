@@ -20,7 +20,7 @@ const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 // ТВОЯ НОВАЯ ССЫЛКА ОТ VERCEL (замени на ту, что выдал терминал)
 const VERCEL_URL = 'https://valentine-app-delta.vercel.app'; 
-const BACKEND_URL = 'https://evaporative-unbeaded-saniya.ngrok-free.dev';
+const BACKEND_URL = 'https://back-valentine-post.onrender.com';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -156,5 +156,5 @@ app.post('/api/save-valentine', async (req, res) => {
     }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`✅ Бэкенд на порту ${PORT}. Используй VERCEL: ${VERCEL_URL}`));
