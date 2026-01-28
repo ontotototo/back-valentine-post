@@ -109,22 +109,37 @@ app.get('/share/:id', async (req, res) => {
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta property="og:title" content="💌 Валентинка для ${card.to_name}" />
+    <meta property="og:title" content="💌 Прилетела валентинка для ${card.to_name}" />
     <meta property="og:description" content="${safeMessage}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="${VERCEL_URL}/share/${id}" />
     <meta property="og:image" content="${VERCEL_URL}/preview/${id}.jpg" />
     <meta property="vk:image" content="${VERCEL_URL}/preview/${id}.jpg" />
-
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Валентинка 💌</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f5f5f5;
+      }
+      img {
+        max-width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      }
+    </style>
   </head>
   <body>
-    <script>
-      window.location.href = "https://vk.com/app54419057#card=${id}";
-    </script>
+    <img src="${VERCEL_URL}/preview/${id}.jpg" alt="Валентинка" />
   </body>
 </html>
-  `);
+`);
+
 });
 
 app.get('/api/config', (req, res) => res.json(cardConfigs));
