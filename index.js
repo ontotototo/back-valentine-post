@@ -17,6 +17,8 @@ const VERCEL_URL = 'https://valentine-app-delta.vercel.app';
 const BACKEND_URL = 'https://back-valentine-post.onrender.com';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const Y_FIX = -70; 
+
 
 async function generateValentineImage(card) {
   const config = cardConfigs[card.card_id];
@@ -39,14 +41,14 @@ async function generateValentineImage(card) {
     ctx,
     card.message || '',
     config.textX,
-    config.textY,
+    config.textY + Y_FIX,
     config.maxWidth,
     config.lineHeight
   );
 
   ctx.font = '70px "Euclid Circular"';
-  ctx.fillText(card.from_name || '', config.fromX, config.fromY);
-  ctx.fillText(card.to_name || '', config.toX, config.toY);
+  ctx.fillText(card.from_name || '', config.fromX, config.fromY + Y_FIX);
+  ctx.fillText(card.to_name || '', config.toX, config.toY + Y_FIX);
 
   return canvas.toBuffer('image/jpeg', { quality: 0.8 });
 }
