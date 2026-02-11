@@ -6,22 +6,17 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 
-// 1. РЕГИСТРАЦИЯ ШРИФТА
 registerFont(path.join(__dirname, 'Euclid Circular A Light.ttf'), { family: 'Euclid Circular' });
 
 const app = express();
 
-// 2. НАСТРОЙКИ (Оставь свои ключи)
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-
-// ТВОЯ НОВАЯ ССЫЛКА ОТ VERCEL (замени на ту, что выдал терминал)
 const VERCEL_URL = 'https://valentine-app-delta.vercel.app'; 
 const BACKEND_URL = 'https://back-valentine-post.onrender.com';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
 
 async function generateValentineImage(card) {
   const config = cardConfigs[card.card_id];
@@ -78,14 +73,12 @@ async function uploadImageToStorage(buffer, id) {
   return data.publicUrl;
 }
 
-
-// 3. MIDDLEWARE
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 
-// Пропускаем заголовки ngrok
+// заголовки ngrok
 app.use((req, res, next) => {
 
   next();
@@ -99,7 +92,7 @@ const cardConfigs = {
     'cute': { file: '3.jpg', textX: 200, textY: 350, maxWidth: 450, lineHeight: 40, fromX: 290, fromY: 83, toX: 713, toY: 1242, color: '#ffffff' }
 };
 
-// Функция отрисовки текста (без изменений)
+// Функция отрисовки текста без изменений
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     let words = text.split(' ');
     let line = '';
@@ -115,7 +108,7 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     ctx.fillText(line, x, y);
 }
 
-// РОУТ ДЛЯ ГЕНЕРАЦИИ КАРТИНКИ
+// Р ГЕНЕРАЦИИ КАРТИНКИ
 app.get('/preview/:id.jpg', async (req, res) => {
   const { id } = req.params;
 
@@ -133,7 +126,6 @@ app.get('/preview/:id.jpg', async (req, res) => {
 });
 
 
-// РОУТ ДЛЯ ВК (Мета-теги)
 app.get('/share/:id', async (req, res) => {
   const { id } = req.params;
   const { data: card } = await supabase.from('valentines').select('message, to_name').eq('id', id).single();
@@ -142,7 +134,7 @@ app.get('/share/:id', async (req, res) => {
 
   const safeMessage = card.message.replace(/[&"<>]/g, (m) => ({'&':'&amp;','"':'&quot;','<':'&lt;','>':'&gt;'}[m]));
 
-  // ВАЖНО: Здесь везде используем VERCEL_URL
+
   res.send(`
 <!DOCTYPE html>
 <html lang="ru">
@@ -215,13 +207,10 @@ app.post('/api/save-valentine', async (req, res) => {
 
     if (error) throw error;
 
-    // 1️⃣ Генерируем картинку
     const imageBuffer = await generateValentineImage(data);
 
-    // 2️⃣ Загружаем в Storage
     const imageUrl = await uploadImageToStorage(imageBuffer, data.id);
 
-    // 3️⃣ Обновляем запись
     await supabase
       .from('valentines')
       .update({ image_url: imageUrl })
