@@ -44,7 +44,7 @@ async function generateValentineImage(card) {
     config.lineHeight
   );
 
-  ctx.font = 'bold 70px "Euclid Circular"';
+  ctx.font = '70px "Euclid Circular"';
   ctx.fillText(card.from_name || '', config.fromX, config.fromY);
   ctx.fillText(card.to_name || '', config.toX, config.toY);
 
@@ -77,19 +77,13 @@ app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-
-// заголовки ngrok
-app.use((req, res, next) => {
-
-  next();
-});
-
 const cardConfigs = {
-    'gel': { file: '4.jpg', textX: 715, textY: 820, maxWidth: 500, lineHeight: 45, fromX: 835, fromY: 1343, toX: 772, toY: 1417, color: '#000000' },
-    'rso': { file: '6.jpg', textX: 38, textY: 564, maxWidth: 500, lineHeight: 45, fromX: 275, fromY: 97, toX: 232, toY: 159, color: '#3d2b1f' },
+    'gel': { file: '4.jpg', textX: 484, textY: 491, maxWidth: 500, lineHeight: 45, fromX: 502, fromY: 807, toX: 460, toY: 851, color: '#000000' },
+    'rso': { file: '6.jpg', textX: 38, textY: 564, maxWidth: 500, lineHeight: 45, fromX: 275, fromY: 92, toX: 232, toY: 154, color: '#ffffff' },
     'classic': { file: '1.jpg', textX: 320, textY: 785, maxWidth: 530, lineHeight: 45, fromX: 460, fromY: 633, toX: 403, toY: 690, color: '#3d2b1f' },
-    'modern': { file: '2.jpg', textX: 32, textY: 260, maxWidth: 500, lineHeight: 45, fromX: 293, fromY: 70, toX: 233, toY: 125, color: '#000000' },
-    'cute': { file: '3.jpg', textX: 200, textY: 350, maxWidth: 450, lineHeight: 40, fromX: 290, fromY: 83, toX: 713, toY: 1242, color: '#ffffff' }
+    'cute': { file: '3.jpg', textX: 200, textY: 350, maxWidth: 450, lineHeight: 40, fromX: 290, fromY: 83, toX: 713, toY: 1242, color: '#ffffff' },
+    'samara': { file: '8.jpg', textX: 300, textY: 470, maxWidth: 450, lineHeight: 40, fromX: 325, fromY: 720, toX: 276, toY: 766, color: '#000000' },
+    'modern': { file: '2.jpg', textX: 32, textY: 260, maxWidth: 500, lineHeight: 45, fromX: 293, fromY: 70, toX: 233, toY: 125, color: '#000000' }
 };
 
 // Функция отрисовки текста без изменений
@@ -140,7 +134,7 @@ app.get('/share/:id', async (req, res) => {
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta property="og:title" content="💌 Прилетела валентинка для ${card.to_name}" />
+    <meta property="og:title" content="💌 Прилетела валентинка ${card.to_name}" />
     <meta property="og:description" content="${safeMessage}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="${VERCEL_URL}/share/${id}" />
