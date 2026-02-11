@@ -2,14 +2,12 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios');
 const { registerFont, createCanvas, loadImage } = require('canvas');
 
 // 1. РЕГИСТРАЦИЯ ШРИФТА
-registerFont(path.join(__dirname, 'GreatVibes.ttf'), { family: 'Great Vibes' });
+registerFont(path.join(__dirname, 'Euclid Circular A Light.ttf'), { family: 'Euclid Circular' });
 
 const app = express();
 
@@ -23,6 +21,63 @@ const VERCEL_URL = 'https://valentine-app-delta.vercel.app';
 const BACKEND_URL = 'https://back-valentine-post.onrender.com';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+
+async function generateValentineImage(card) {
+  const config = cardConfigs[card.card_id];
+  if (!config) {
+    throw new Error('Unknown card_id: ' + card.card_id);
+  }
+
+  const imagePath = path.join(__dirname, config.file);
+  const background = await loadImage(imagePath);
+
+  const canvas = createCanvas(background.width, background.height);
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(background, 0, 0);
+  ctx.fillStyle = config.color || '#000';
+  ctx.textBaseline = 'top';
+
+  ctx.font = '70px "Euclid Circular"';
+  wrapText(
+    ctx,
+    card.message || '',
+    config.textX,
+    config.textY,
+    config.maxWidth,
+    config.lineHeight
+  );
+
+  ctx.font = 'bold 70px "Euclid Circular"';
+  ctx.fillText(card.from_name || '', config.fromX, config.fromY);
+  ctx.fillText(card.to_name || '', config.toX, config.toY);
+
+  return canvas.toBuffer('image/jpeg', { quality: 0.8 });
+}
+
+
+async function uploadImageToStorage(buffer, id) {
+  const filePath = `${id}.jpg`;
+
+  const { error } = await supabase.storage
+    .from('valentines')
+    .upload(filePath, buffer, {
+      contentType: 'image/jpeg',
+      upsert: true
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  const { data } = supabase.storage
+    .from('valentines')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
+}
+
 
 // 3. MIDDLEWARE
 app.use(cors());
@@ -63,38 +118,20 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 // РОУТ ДЛЯ ГЕНЕРАЦИИ КАРТИНКИ
 app.get('/preview/:id.jpg', async (req, res) => {
   const { id } = req.params;
-  try {
-    const { data: card } = await supabase.from('valentines').select('*').eq('id', id).single();
-    if (!card) return res.status(404).send('Not found');
 
-    const config = cardConfigs[card.card_id];
-    if (!config) {
-      console.error('❌ INVALID CARD TYPE:', card.card_id);
-      return res.status(400).send('Invalid card type');
-    }   
+  const { data } = await supabase
+    .from('valentines')
+    .select('image_url')
+    .eq('id', id)
+    .single();
 
-    const imagePath = path.join(__dirname, config.file);
-    const background = await loadImage(imagePath);
-    const canvas = createCanvas(background.width, background.height);
-    const ctx = canvas.getContext('2d');
-
-    ctx.drawImage(background, 0, 0);
-    ctx.fillStyle = config.color || '#000';
-    ctx.textBaseline = 'top';
-    ctx.font = '70px "Great Vibes"';
-    wrapText(ctx, card.message || '', config.textX, config.textY, config.maxWidth, config.lineHeight);
-    ctx.font = 'bold 70px "Great Vibes"';
-    ctx.fillText(card.from_name || '', config.fromX, config.fromY);
-    ctx.fillText(card.to_name || '', config.toX, config.toY);
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.send(canvas.toBuffer('image/jpeg'));
-
-  } catch (err) {
-    res.status(500).send('Error');
+  if (!data?.image_url) {
+    return res.status(404).send('Not found');
   }
+
+  res.redirect(data.image_url);
 });
+
 
 // РОУТ ДЛЯ ВК (Мета-теги)
 app.get('/share/:id', async (req, res) => {
@@ -147,30 +184,61 @@ app.get('/share/:id', async (req, res) => {
 app.get('/api/config', (req, res) => res.json(cardConfigs));
 
 app.post('/api/save-valentine', async (req, res) => {
-    console.log('🔥 /api/save-valentine HIT');
-    console.log('HEADERS:', req.headers);
-    console.log('BODY:', req.body);
-    const { card_id, region, hq, squad, message, to_id, to_name, from_id, from_name } = req.body;
-    if (!card_id || !message || !to_name) {
-      console.error('❌ INVALID DATA:', req.body);
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid input data'
-      });
-    }
+  try {
+    const {
+      card_id,
+      region,
+      hq,
+      squad,
+      message,
+      to_id,
+      to_name,
+      from_id,
+      from_name
+    } = req.body;
 
-    try {
-        const { data, error } = await supabase
-            .from('valentines')
-            .insert([{ from_id, from_name, to_id, to_name, region, hq, squad, message, card_id }])
-            .select();
+    const { data, error } = await supabase
+      .from('valentines')
+      .insert([{
+        from_id,
+        from_name,
+        to_id,
+        to_name,
+        region,
+        hq,
+        squad,
+        message,
+        card_id
+      }])
+      .select()
+      .single();
 
-        if (error) throw error;
-        res.status(200).json({ success: true, id: data[0].id });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
+    if (error) throw error;
+
+    // 1️⃣ Генерируем картинку
+    const imageBuffer = await generateValentineImage(data);
+
+    // 2️⃣ Загружаем в Storage
+    const imageUrl = await uploadImageToStorage(imageBuffer, data.id);
+
+    // 3️⃣ Обновляем запись
+    await supabase
+      .from('valentines')
+      .update({ image_url: imageUrl })
+      .eq('id', data.id);
+
+    res.json({
+      success: true,
+      id: data.id,
+      image_url: imageUrl
+    });
+
+  } catch (err) {
+    console.error('SAVE VALENTINE ERROR:', err);
+    res.status(500).json({ success: false });
+  }
 });
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`✅ Бэкенд на порту ${PORT}. Используй VERCEL: ${VERCEL_URL}`));
