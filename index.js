@@ -36,7 +36,7 @@ async function generateValentineImage(card) {
   ctx.fillStyle = config.color || '#000';
   ctx.textBaseline = 'top';
 
-  ctx.font = '70px "Euclid Circular"';
+  ctx.font = '40px "Euclid Circular"';
   wrapText(
     ctx,
     card.message || '',
@@ -46,7 +46,7 @@ async function generateValentineImage(card) {
     config.lineHeight
   );
 
-  ctx.font = '70px "Euclid Circular"';
+  ctx.font = '40px "Euclid Circular"';
   ctx.fillText(card.from_name || '', config.fromX, config.fromY + Y_FIX);
   ctx.fillText(card.to_name || '', config.toX, config.toY + Y_FIX);
 
@@ -80,11 +80,11 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 const cardConfigs = {
-    'gel': { file: '4.jpg', textX: 484, textY: 491, maxWidth: 500, lineHeight: 45, fromX: 502, fromY: 807, toX: 460, toY: 851, color: '#000000' },
+    'gel': { file: '4.jpg', textX: 360, textY: 491, maxWidth: 500, lineHeight: 45, fromX: 502, fromY: 807, toX: 460, toY: 851, color: '#000000' },
     'rso': { file: '6.jpg', textX: 38, textY: 564, maxWidth: 500, lineHeight: 45, fromX: 275, fromY: 92, toX: 232, toY: 154, color: '#ffffff' },
-    'classic': { file: '1.jpg', textX: 320, textY: 785, maxWidth: 530, lineHeight: 45, fromX: 460, fromY: 633, toX: 403, toY: 690, color: '#3d2b1f' },
-    'cute': { file: '3.jpg', textX: 200, textY: 350, maxWidth: 450, lineHeight: 40, fromX: 290, fromY: 83, toX: 713, toY: 1242, color: '#ffffff' },
-    'samara': { file: '8.jpg', textX: 300, textY: 470, maxWidth: 450, lineHeight: 40, fromX: 325, fromY: 720, toX: 276, toY: 766, color: '#000000' },
+    'classic': { file: '1.jpg', textX: 300, textY: 785, maxWidth: 530, lineHeight: 45, fromX: 460, fromY: 633, toX: 403, toY: 690, color: '#3d2b1f' },
+    'cute': { file: '3.jpg', textX: 200, textY: 350, maxWidth: 450, lineHeight: 45, fromX: 275, fromY: 83, toX: 690, toY: 1242, color: '#ffffff' },
+    'samara': { file: '8.jpg', textX: 300, textY: 470, maxWidth: 450, lineHeight: 45, fromX: 325, fromY: 720, toX: 276, toY: 766, color: '#000000' },
     'modern': { file: '2.jpg', textX: 32, textY: 260, maxWidth: 500, lineHeight: 45, fromX: 293, fromY: 70, toX: 233, toY: 125, color: '#000000' }
 };
 
