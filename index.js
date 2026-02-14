@@ -17,7 +17,7 @@ const VERCEL_URL = 'https://valentine-app-delta.vercel.app';
 const BACKEND_URL = 'https://back-valentine-post.onrender.com';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const Y_FIX = -70; 
+const Y_FIX = 0; 
 
 
 async function generateValentineImage(card) {
